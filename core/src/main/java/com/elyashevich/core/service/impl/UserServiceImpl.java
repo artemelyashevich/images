@@ -1,12 +1,16 @@
 package com.elyashevich.core.service.impl;
 
-import com.elyashevich.core.domain.User;
+import com.elyashevich.core.domain.entity.Role;
+import com.elyashevich.core.domain.entity.User;
 import com.elyashevich.core.exception.ResourceNotFoundException;
 import com.elyashevich.core.repository.UserRepository;
 import com.elyashevich.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     public static final String USER_WITH_ID_WAS_NOT_FOUND_TEMPLATE = "User with id '%s' was not found";
     public static final String USER_WITH_EMAIL_WAS_NOT_FOUND_TEMPLATE = "User with email '%s' was not found";
@@ -88,4 +92,17 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(final String id, final String password) {
 
     }
+    @Override
+    public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
+        var user = this.findByEmail(email);
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                user.getRoles().stream()
+                        .map(Role::name)
+                        .map(SimpleGrantedAuthority::new)
+                        .toList()
+        );
+    }
+
 }

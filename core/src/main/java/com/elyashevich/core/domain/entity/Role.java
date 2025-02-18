@@ -1,4 +1,4 @@
-package com.elyashevich.core.domain;
+package com.elyashevich.core.domain.entity;
 
 public enum Role {
 

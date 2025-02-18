@@ -1,6 +1,6 @@
 package com.elyashevich.core.service;
 
-import com.elyashevich.core.domain.User;
+import com.elyashevich.core.domain.entity.User;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.elyashevich.core.repository;
 
-import com.elyashevich.core.domain.User;
+import com.elyashevich.core.domain.entity.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
