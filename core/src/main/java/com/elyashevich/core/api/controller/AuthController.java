@@ -4,7 +4,7 @@ import com.elyashevich.core.api.dto.auth.LoginDto;
 import com.elyashevich.core.api.dto.auth.RefreshTokenDto;
 import com.elyashevich.core.api.dto.auth.RegisterDto;
 import com.elyashevich.core.api.dto.auth.ResetPasswordDto;
-import com.elyashevich.core.domain.JwtResponse;
+import com.elyashevich.core.domain.response.JwtResponse;
 import com.elyashevich.core.domain.entity.User;
 import com.elyashevich.core.service.AuthService;
 import jakarta.validation.Valid;

@@ -1,7 +1,7 @@
 package com.elyashevich.core.service;
 
 import com.elyashevich.core.api.dto.auth.ResetPasswordDto;
-import com.elyashevich.core.domain.JwtResponse;
+import com.elyashevich.core.domain.response.JwtResponse;
 import com.elyashevich.core.domain.entity.User;
 
 public interface AuthService {
