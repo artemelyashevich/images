@@ -10,3 +10,7 @@ spring:
       auto-index-creation: true
 server:
   port: 8222
+
+application:
+  security:
+    token:
