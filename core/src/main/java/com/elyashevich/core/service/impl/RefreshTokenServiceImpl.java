@@ -26,5 +26,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         this.refreshTokenRepository.save(candidate);
 
         log.info("Created refresh token");
-        return token;    }
+        return token;
+    }
 }

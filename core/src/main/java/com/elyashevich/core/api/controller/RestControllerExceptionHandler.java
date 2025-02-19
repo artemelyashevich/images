@@ -16,17 +16,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
+import static com.elyashevich.core.util.ControllerAdviceMessageUtil.*;
+
 @Slf4j
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
-
-    private static final String NOT_FOUND_MESSAGE = "Resource was not found.";
-    private static final String ALREADY_EXISTS_MESSAGE = "Resource already exists.";
-    private static final String NOT_SUPPORTED_MESSAGE = "Http method with this URL not found.";
-    private static final String FAILED_VALIDATION_MESSAGE = "Validation failed.";
-    private static final String UNEXPECTED_ERROR_MESSAGE = "Something went wrong.";
-    private static final String PASSWORD_MISMATCH_MESSAGE = "Password mismatch.";
-    private static final String TOKEN_INVALID_MESSAGE = "Invalid token.";
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ExceptionBody> handleNotFound(final ResourceNotFoundException exception) {

@@ -7,7 +7,7 @@ import com.elyashevich.core.domain.entity.User;
 import com.elyashevich.core.exception.PasswordMismatchException;
 import com.elyashevich.core.service.AuthService;
 import com.elyashevich.core.service.RefreshTokenService;
-import com.elyashevich.core.util.TokenLifeTimeUtil;
+import com.elyashevich.core.util.TokenConstantUtil;
 import com.elyashevich.core.util.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +74,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private JwtResponse authenticate(final UserDetails user) {
-        var accessToken = TokenUtil.generateToken(user, TokenLifeTimeUtil.ACCESS_TOKEN_EXPIRES_TIME);
-        var refreshToken = TokenUtil.generateToken(user, TokenLifeTimeUtil.REFRESH_TOKEN_EXPIRES_TIME);
+        var accessToken = TokenUtil.generateToken(user, TokenConstantUtil.ACCESS_TOKEN_EXPIRES_TIME);
+        var refreshToken = TokenUtil.generateToken(user, TokenConstantUtil.REFRESH_TOKEN_EXPIRES_TIME);
         return new JwtResponse(accessToken, refreshToken);
     }
 }

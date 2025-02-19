@@ -1,7 +1,9 @@
 package com.elyashevich.core.service.impl;
 
+import com.elyashevich.core.api.dto.auth.ResetPasswordDto;
 import com.elyashevich.core.domain.entity.Role;
 import com.elyashevich.core.domain.entity.User;
+import com.elyashevich.core.exception.ResourceAlreadyExistsException;
 import com.elyashevich.core.exception.ResourceNotFoundException;
 import com.elyashevich.core.repository.UserRepository;
 import com.elyashevich.core.service.UserService;
@@ -16,18 +18,32 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.elyashevich.core.util.UserTemplateMessageUtil.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
-    public static final String USER_WITH_ID_WAS_NOT_FOUND_TEMPLATE = "User with id '%s' was not found";
-    public static final String USER_WITH_EMAIL_WAS_NOT_FOUND_TEMPLATE = "User with email '%s' was not found";
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public User create(final User user) {
-        return null;
+        log.debug("Attempting create new user: '{}'", user.getEmail());
+
+        if (this.userRepository.existsByEmail(user.getEmail())) {
+            var message = String.format(USER_WITH_EMAIL_ALREADY_EXISTS_TEMPLATE, user.getEmail());
+
+            log.warn(message);
+
+            throw new ResourceAlreadyExistsException(message);
+        }
+
+        var newUser = this.userRepository.save(user);
+
+        log.info("User with email '{}' has been created", user.getEmail());
+        return newUser;
     }
 
     @Override
@@ -72,9 +88,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user;
     }
 
+    @Transactional
     @Override
     public User update(final String id, final User user) {
-        return null;
+        log.debug("Attempting to update user with id {}", id);
+
+        var oldUser = this.findById(id);
+        oldUser.setEmail(user.getEmail());
+        oldUser.setFirstName(user.getFirstName());
+        oldUser.setLastName(user.getLastName());
+        oldUser.setBirthday(user.getBirthday());
+
+        var newUser = this.userRepository.save(oldUser);
+
+        log.info("User with email '{}' has been updated", user.getEmail());
+        return newUser;
     }
 
     @Transactional
@@ -88,10 +116,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         log.info("Deleted user with id {}", user.getId());
     }
 
+    @Transactional
     @Override
-    public void resetPassword(final String id, final String password) {
+    public void resetPassword(final String id, final String newPassword) {
+        log.debug("Attempting to reset password for user with id {}", id);
 
+        var oldUser = this.findById(id);
+
+        oldUser.setPassword(newPassword);
+        var newUser = this.userRepository.save(oldUser);
+
+        log.info("Reset password for user with id {}", newUser.getId());
     }
+
     @Override
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
         var user = this.findByEmail(email);

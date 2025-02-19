@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.elyashevich.core.util.TokenConstantUtil.*;
+
 @UtilityClass
 public class TokenUtil {
 
@@ -27,7 +29,7 @@ public class TokenUtil {
 
     @SuppressWarnings("unchecked")
     public static List<String> getRoles(final String token) {
-        return getClaimsFromToken(token).get("roles", List.class);
+        return getClaimsFromToken(token).get(ROLES, List.class);
     }
 
     public static String generateToken(final UserDetails userDetails, final long tokenLifeTime) {
@@ -55,7 +57,7 @@ public class TokenUtil {
         return Jwts.builder()
                 .setClaims(
                         Map.of(
-                                "roles",
+                                ROLES,
                                 userDetails.getAuthorities().stream()
                                         .map(GrantedAuthority::getAuthority)
                                         .toList()
