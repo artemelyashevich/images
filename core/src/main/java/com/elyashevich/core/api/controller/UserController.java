@@ -1,11 +1,11 @@
 package com.elyashevich.core.api.controller;
 
 import com.elyashevich.core.api.dto.user.UserDto;
+import com.elyashevich.core.api.mapper.UserMapper;
 import com.elyashevich.core.domain.entity.User;
 import com.elyashevich.core.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,22 +25,20 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     @GetMapping
     public ResponseEntity<List<UserDto>> findAllUsers() {
         var users = this.userService.findAll();
 
-        var dtos = users.stream()
-                .map(user -> this.modelMapper.map(user, UserDto.class))
-                .toList();
+        var dtos = this.userMapper.toDto(users);
         return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> findById(final @PathVariable("id") String id) {
         var user = this.userService.findById(id);
-        var dto = this.modelMapper.map(user, UserDto.class );
+        var dto = this.userMapper.toDto(user);
 
         return ResponseEntity.ok(dto);
     }
@@ -48,16 +46,16 @@ public class UserController {
     @GetMapping("/current")
     public ResponseEntity<UserDto> findByCurrentUser(final @RequestAttribute("email") String email) {
         var user = this.userService.findByEmail(email);
-        var dto = this.modelMapper.map(user, UserDto.class);
+        var dto = this.userMapper.toDto(user);
 
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(final @PathVariable("id") String id, final @Valid @RequestBody UserDto userDto) {
-        var candidate = this.modelMapper.map(userDto, User.class);
+        var candidate = this.userMapper.toEntity(userDto);
         var user = this.userService.update(id, candidate);
-        var dto = this.modelMapper.map(user, UserDto.class);
+        var dto = this.userMapper.toDto(user);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

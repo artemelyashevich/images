@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import static com.elyashevich.core.util.KafkaConstantUtil.DESTINATION;
+
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
@@ -14,6 +16,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(final NotificationEvent event) {
-        this.messagingTemplate.convertAndSend("/topic/notifications", event);
+        this.messagingTemplate.convertAndSend(DESTINATION, event);
     }
 }

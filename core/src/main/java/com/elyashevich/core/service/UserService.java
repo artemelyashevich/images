@@ -17,5 +17,5 @@ public interface UserService {
 
     void delete(final String id);
 
-    void resetPassword(final String id, final String password);
+    void resetPassword(final String id, final String newPassword);
 }

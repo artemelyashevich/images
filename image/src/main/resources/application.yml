@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: images
+  data:
+    mongodb:
+      host: 127.0.0.1
+      port: 27017
+      authentication-database: admin
+      database: images
+      auto-index-creation: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+server:
+  port: 8221

@@ -10,12 +10,10 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+import static com.elyashevich.core.util.SwaggerConstantUtil.*;
+
 @Configuration
 public class SwaggerConfig {
-
-    private static final String AUTH_SERVICE_TITLE = "Core Service API";
-    private static final String AUTH_SERVICE_DESCRIPTION = "API documentation for the Core Service";
-    private static final String AUTH_SERVICE_VERSION = "1.0";
 
     @Value("${application.open-api.email:example}")
     private String email;

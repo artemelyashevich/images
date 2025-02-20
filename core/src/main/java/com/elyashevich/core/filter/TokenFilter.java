@@ -16,11 +16,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.elyashevich.core.util.TokenConstantUtil.*;
+
 @Component
 public class TokenFilter extends OncePerRequestFilter {
-
-    public static final String BEARER_PREFIX = "Bearer ";
-    public static final String HEADER_NAME = "Authorization";
 
     @Override
     protected void doFilterInternal(

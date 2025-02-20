@@ -8,15 +8,19 @@ spring:
       authentication-database: admin
       database: images
       auto-index-creation: true
+    redis:
+      host: 127.0.0.1
+      port: 6379
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      group-id: order-group
+      group-id: notification-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializerserver
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+server:
   port: 8222
 
 application:
   security:
-    token:
+    token: 984hg493gh0439rthr0429uruj2309yh937gc763fe87t3f89723gf
