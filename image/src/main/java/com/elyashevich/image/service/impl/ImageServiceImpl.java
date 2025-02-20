@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,6 +32,17 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public GridFSFindIterable findAll() {
         return this.gridFsTemplate.find(null);
+    }
+
+    @Transactional
+    @Override
+    public List<GridFSFile> findAllByUserId(final String userId) {
+        var imageMetadata = imageMetadataRepository.findByUserId(userId);
+        var data = new ArrayList<GridFSFile>();
+        imageMetadata.forEach(image -> {
+            data.add(this.gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(image.getId()))));
+        });
+        return data;
     }
 
     @Override

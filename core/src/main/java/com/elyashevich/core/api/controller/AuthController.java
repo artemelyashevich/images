@@ -4,16 +4,21 @@ import com.elyashevich.core.api.dto.auth.LoginDto;
 import com.elyashevich.core.api.dto.auth.RefreshTokenDto;
 import com.elyashevich.core.api.dto.auth.RegisterDto;
 import com.elyashevich.core.api.dto.auth.ResetPasswordDto;
+import com.elyashevich.core.api.mapper.UserMapper;
 import com.elyashevich.core.domain.response.JwtResponse;
-import com.elyashevich.core.domain.entity.User;
 import com.elyashevich.core.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -21,25 +26,37 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(final @Valid @RequestBody LoginDto loginDto) {
-        var user = this.modelMapper.map(loginDto, User.class);
+    public ResponseEntity<JwtResponse> login(
+            final @Valid @RequestBody LoginDto loginDto,
+            final UriComponentsBuilder uriComponentsBuilder
+    ) {
+        var user = this.userMapper.toEntity(loginDto);
         var response = this.authService.login(user);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .created(
+                        uriComponentsBuilder.path("/api/v1/users/{id}")
+                                .build(user.getId())
+                )
                 .body(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<JwtResponse> register(final @Valid @RequestBody RegisterDto registerDto) {
-        var user = this.modelMapper.map(registerDto, User.class);
+    public ResponseEntity<JwtResponse> register(
+            final @Valid @RequestBody RegisterDto registerDto,
+            final UriComponentsBuilder uriComponentsBuilder
+    ) {
+        var user = this.userMapper.toEntity(registerDto);
         var response = this.authService.register(user);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .created(
+                        uriComponentsBuilder.path("/api/v1/users/{id}")
+                                .build(user.getId())
+                )
                 .body(response);
     }
 

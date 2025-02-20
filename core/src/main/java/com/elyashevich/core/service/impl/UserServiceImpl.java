@@ -1,6 +1,5 @@
 package com.elyashevich.core.service.impl;
 
-import com.elyashevich.core.api.dto.auth.ResetPasswordDto;
 import com.elyashevich.core.domain.entity.Role;
 import com.elyashevich.core.domain.entity.User;
 import com.elyashevich.core.exception.ResourceAlreadyExistsException;
@@ -9,6 +8,10 @@ import com.elyashevich.core.repository.UserRepository;
 import com.elyashevich.core.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.elyashevich.core.util.UserTemplateMessageUtil.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,10 +29,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
 
+    @Caching(
+            put = {
+                    @CachePut(value = "UserService::findById", key="#result.id"),
+                    @CachePut(value = "UserService::findByEmail", key = "#result.email"),
+                    @CachePut(value = "UserService::findAll")
+            }
+    )
     @Transactional
     @Override
     public User create(final User user) {
-        log.debug("Attempting create new user: '{}'", user.getEmail());
+        log.debug("Attempting to create a new user: '{}'", user.getEmail());
 
         if (this.userRepository.existsByEmail(user.getEmail())) {
             var message = String.format(USER_WITH_EMAIL_ALREADY_EXISTS_TEMPLATE, user.getEmail());
@@ -46,6 +55,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return newUser;
     }
 
+    @Cacheable(value="UserService::findAll")
     @Override
     public List<User> findAll() {
         log.debug("Attempting to find all users");
@@ -56,13 +66,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return users;
     }
 
+    @Cacheable(value = "UserService::findById", key = "#id")
     @Override
     public User findById(final String id) {
         log.debug("Attempting to find user with id {}", id);
 
         var user = this.userRepository.findById(id).orElseThrow(
                 ()-> {
-                    var message = USER_WITH_ID_WAS_NOT_FOUND_TEMPLATE.formatted(id);
+                    var message = String.format(USER_WITH_ID_WAS_NOT_FOUND_TEMPLATE, id);
                     log.warn(message);
                     return new ResourceNotFoundException(message);
                 }
@@ -72,13 +83,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user;
     }
 
+    @Cacheable(value = "UserService::findByEmail", key = "#email")
     @Override
     public User findByEmail(final String email) {
         log.debug("Attempting to find user with email {}", email);
 
         var user = this.userRepository.findByEmail(email).orElseThrow(
                 ()-> {
-                    var message = USER_WITH_EMAIL_WAS_NOT_FOUND_TEMPLATE.formatted(email);
+                    var message = String.format(USER_WITH_EMAIL_WAS_NOT_FOUND_TEMPLATE, email);
                     log.warn(message);
                     return new ResourceNotFoundException(message);
                 }
@@ -88,6 +100,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user;
     }
 
+    @Caching(
+            put = {
+                    @CachePut(value = "UserService::findById", key="#id"),
+                    @CachePut(value = "UserService::findByEmail", key = "#user.email"),
+                    @CachePut(value = "UserService::findAll")
+            }
+    )
     @Transactional
     @Override
     public User update(final String id, final User user) {
@@ -105,6 +124,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return newUser;
     }
 
+    @CacheEvict(value = "UserService::findById", key="#id")
     @Transactional
     @Override
     public void delete(final String id) {
@@ -141,5 +161,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                         .toList()
         );
     }
-
 }
+

@@ -20,8 +20,7 @@ import static com.elyashevich.core.util.TokenConstantUtil.*;
 @UtilityClass
 public class TokenUtil {
 
-    @Value("${application.security.token:984hg493gh0439rthr0429uruj2309yh937gc763fe87t3f89723gf}")
-    private String secret;
+    private String secret = "984hg493gh0439rthr0429uruj2309yh937gc763fe87t3f89723gf";
 
     public static String extractEmailClaims(final String token) {
         return getClaimsFromToken(token).getSubject();
