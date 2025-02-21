@@ -30,20 +30,20 @@ public class KafkaConsumerConfig {
     private String kafkaServers;
 
     @Bean
-    public ConsumerFactory<String, NotificationEvent> consumerFactory() {
+    public ConsumerFactory<String, Object> consumerFactory() {
         var configProps = new HashMap<String, Object>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaServers);
         configProps.put(GROUP_ID_CONFIG, GROUP_ID);
         configProps.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
-        configProps.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, JsonDeserializer.class);
-
-        return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(), new JsonDeserializer<>(NotificationEvent.class));
+        configProps.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, StringDeserializer.class);
+        configProps.put(JsonDeserializer.TRUSTED_PACKAGES, "com.elyashevich.image.domain.event.NotificationEvent");
+        return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> kafkaListenerContainerFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, NotificationEvent>();
+    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }

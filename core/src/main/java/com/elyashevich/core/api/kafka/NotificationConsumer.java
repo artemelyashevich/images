@@ -2,6 +2,8 @@ package com.elyashevich.core.api.kafka;
 
 import com.elyashevich.core.domain.event.NotificationEvent;
 import com.elyashevich.core.service.NotificationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,8 +17,12 @@ public class NotificationConsumer {
 
     private final NotificationService notificationService;
 
-    @KafkaListener(topics = "payment-topic", groupId = "payment-group")
-    public void consumeOrderEvent(final NotificationEvent event) {
+    @KafkaListener(topics = "notification-topic", groupId = "notification-group")
+    public void consumeOrderEvent(final String message) throws JsonProcessingException {
+
+        var objectMapper = new ObjectMapper();
+        var event = objectMapper.readValue(message, NotificationEvent.class);
+
         log.debug("Consuming notification event: {}", event);
 
         this.notificationService.sendNotification(event);
