@@ -1,7 +1,10 @@
 package com.elyashevich.image.service.impl;
 
 import com.elyashevich.image.domain.entity.ImageMetadata;
+import com.elyashevich.image.domain.event.EventType;
+import com.elyashevich.image.domain.event.NotificationEvent;
 import com.elyashevich.image.exception.UploadingException;
+import com.elyashevich.image.kafka.NotificationProducer;
 import com.elyashevich.image.repository.ImageMetadataRepository;
 import com.elyashevich.image.service.ImageService;
 import com.mongodb.client.gridfs.GridFSFindIterable;
@@ -28,6 +31,7 @@ public class ImageServiceImpl implements ImageService {
 
     private final GridFsTemplate gridFsTemplate;
     private final ImageMetadataRepository imageMetadataRepository;
+    private final NotificationProducer notificationProducer;
 
     @Override
     public GridFSFindIterable findAll() {
@@ -54,6 +58,10 @@ public class ImageServiceImpl implements ImageService {
     @Override
     public ImageMetadata create(final MultipartFile file, final String userId) {
         try {
+            notificationProducer.sendOrderEvent(NotificationEvent.builder()
+                            .eventType(EventType.PENDING)
+                    .build());
+
             var id = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType());
             var image = ImageMetadata.builder()
                     .id(id.toString())
@@ -63,8 +71,17 @@ public class ImageServiceImpl implements ImageService {
                     .uploadDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .build();
 
-            return this.imageMetadataRepository.save(image);
+            var result = this.imageMetadataRepository.save(image);
+
+            notificationProducer.sendOrderEvent(NotificationEvent.builder()
+                    .eventType(EventType.FULFILLED)
+                    .build());
+
+            return result;
         } catch (IOException e) {
+            notificationProducer.sendOrderEvent(NotificationEvent.builder()
+                    .eventType(EventType.REJECTED)
+                    .build());
             throw new UploadingException("Error uploading file", e);
         }
     }
